@@ -48,6 +48,11 @@ spec:
           requests:
             cpu: {{ .Values.resources.requests.cpu}}
             memory: {{ .Values.resources.requests.memory}}
+        {{- with .Values.resources.limits}}
+          limits:
+            cpu: {{ .cpu }}
+            memory: {{ .memory }}
+        {{- end}}
         livenessProbe:
           exec:
             command: ["mysqladmin", "ping"]

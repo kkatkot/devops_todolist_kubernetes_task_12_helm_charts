@@ -1,25 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ .Chart.Name }}
   namespace: {{ .Values.todoapp.ns.name }}
 spec:
-  type: RollingUpdate
-  rollingUpdate:
-    maxSurge: {{ .Values.rollingUpdate.maxSurge}}
-    maxUnavailable: {{ .Values.rollingUpdate.maxUnavailable}}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: {{ .Values.rollingUpdate.maxSurge}}
+      maxUnavailable: {{ .Values.rollingUpdate.maxUnavailable}}
   selector:
     matchLabels:
-      app: {{ .Release.Name }}
+      app: {{ .Chart.Name }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}
+        app: {{ .Chart.Name }}
     spec:
-      serviceAccountName: {{ .Values.serviceAccountName}}
+      serviceAccountName: {{ .Chart.Name }}-{{ .Values.serviceAccountName}}
       containers:
-      - name: {{ .Release.Name }}
-        image: {{ .Values.common.image }}/{{ .Release.Name }}:{{ .Values.common.tag }}
+      - name: {{ .Chart.Name }}
+        image: {{ .Values.common.image }}/{{ .Chart.Name }}:{{ .Values.common.tag }}
         volumeMounts:
         - name: data
           mountPath: /app/data
@@ -44,13 +45,13 @@ spec:
         - name: PYTHONUNBUFFERED
           valueFrom:
             configMapKeyRef:
-              name: app-config
+              name: {{ .Chart.Name }}-config
               key: PYTHONUNBUFFERED
         {{- range $k, $v := .Values.secrets }}
         - name: {{ $k }}
           valueFrom:
             secretKeyRef:
-              name: app-secret
+              name: {{ .Chart.Name }}-secret
               key: {{ $k }}
         {{- end}}
         ports:
@@ -70,13 +71,13 @@ spec:
       volumes:
       - name: data
         persistentVolumeClaim:
-          claimName: pvc-data
+          claimName: {{ .Chart.Name }}-pvc
       - name: app-secrets-volume
         secret:
-          secretName: app-secret
+          secretName: {{ .Chart.Name }}-secret
       - name: app-config-volume
         configMap:
-          name: app-config
+          name: {{ .Chart.Name }}-config
       affinity:
         nodeAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:

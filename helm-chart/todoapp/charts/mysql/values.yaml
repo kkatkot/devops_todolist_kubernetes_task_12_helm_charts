@@ -20,7 +20,7 @@ affinity:
     values: mysql
 
 tolerations:
-  key: appS
+  key: app
   operator: Equal
   value: mysql
   effect: NoSchedule
@@ -34,3 +34,6 @@ resources:
   requests:
     cpu: 500m
     memory: 1Gi
+  limits:
+    cpu: 1000m
+    memory: 2Gi
